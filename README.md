@@ -1,10 +1,15 @@
 # P4Gutter
+----------
 
-Sublime Text 3 plugin to display Perforce diffs in the gutter. Displays **additions**, **deletions**, and **modifications**.
+Sublime Text 3 plugin to display Perforce diffs in the gutter. Displays additions, deletions, and modifications.
 
 
 ### Looks like
 ![screenshot](screenshot.png)
+
+
+### Installation
+Look for the *P4Gutter* package in Sublime [Package Control](https://sublime.wbond.net/).
 
 
 ### Setup
@@ -15,4 +20,12 @@ Sublime Text 3 plugin to display Perforce diffs in the gutter. Displays **additi
 
 
 ### Usage
-The gutter is updated on file **open** and **save** events.
+The gutter is updated on file *open* and *save* events.
+
+
+### License
+MIT Licensed
+
+
+### Thanks
+Icons from [GitGutter](https://github.com/jisaacks/GitGutter) by [JD Isaacks](https://github.com/jisaacks).
