@@ -19,7 +19,18 @@ Look for the *P4Gutter* package in Sublime [Package Control](https://sublime.wbo
 
 
 ### Usage
+#### Gutter Icons
 The gutter is updated on file **open** and **save** events.
+
+#### Additional Commands
+<kbd>Annotations</kbd><br>
+This opens a new file to display Perforce annotations with change list number and user name prefixed to each line.
+Run the ```P4 Annotations``` command from the Sublime command palette;
+or you can add a key binding to the ```p4_annotation``` command in your "Key Bindings - User" file, like:
+
+```
+    { "keys": ["super+shift+a"], "command": "p4_annotation" }
+```
 
 
 ### License

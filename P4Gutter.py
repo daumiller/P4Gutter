@@ -58,6 +58,95 @@ class P4GutterEventListener(sublime_plugin.EventListener):
             view.window().run_command('p4_gutter_diff')
 
 
+# ANNOTATION -----------------------------------------------------------------------------------------------------------------------
+class P4AnnotationCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        print('P4Annotation')
+        self.view = self.window.active_view()
+        if not self.view:
+            sublime.set_timeout(self.run, 1)
+            return
+        workspace = p4_find_workspace(self.view.file_name()) or P4['workspace']
+        if not workspace:
+            return
+
+        annotation = self.annotate(workspace)
+        if not annotation:
+            return
+
+        anno_view = self.window.new_file()
+        _, base = os.path.split(self.view.file_name())
+        anno_view.set_name('ANNOTATE: ' + base)
+        anno_view.set_scratch(True)
+        anno_view.settings().set('p4_annotation', annotation)
+        anno_view.run_command('p4_annotation_populate')
+
+    def annotate(self, workspace):
+        environment = os.environ
+        environment['P4PORT'] = P4['port']
+        environment['P4USER'] = P4['user']
+        environment['P4CLIENT'] = workspace
+
+        annotation, change_lists = self.annotate_sub_1(environment)
+        if not annotation:
+            return ''
+
+        annotation = self.annotate_sub_2(environment, annotation, change_lists)
+        if not annotation:
+            return ''
+
+        return annotation
+
+    def annotate_sub_1(self, environment):
+        output, error = shell_run([P4['binary'], 'annotate', '-q', '-c', self.view.file_name()], environment)
+        if len(error) and not len(output):
+            return None, None
+        output = output.replace('\r', '')  # replace CRs
+
+        # get all referenced CL numbers
+        cl_unique = {}
+        cl_pattern = re.compile('^([0-9]+):', re.MULTILINE)
+        for cl_match in cl_pattern.finditer(output):
+            cl_number = cl_match.group(1)
+            if cl_number not in cl_unique:
+                cl_unique[cl_number] = ''
+
+        return output, cl_unique
+
+
+    def annotate_sub_2(self, environment, annotation, change_lists):
+        # find CL owners
+        who_pattern = re.compile('^Change [0-9]+ by ([^@]+)@')
+        max_len_number, max_len_name = 0, 0
+        for cl_number in change_lists.keys():
+            if len(cl_number) > max_len_number:
+                max_len_number = len(cl_number)
+            output, error = shell_run([P4['binary'], 'describe', '-s', cl_number], environment)
+            if len(error) and not len(output):
+                continue
+            who_match = who_pattern.search(output)
+            if not who_match:
+                continue
+            who_name = who_match.group(1)
+            if len(who_name) > max_len_name:
+                max_len_name = len(who_name)
+            change_lists[cl_number] = who_name
+
+        for cl_number in change_lists.keys():
+            pad_number = cl_number.ljust(max_len_number, ' ')
+            pad_name = change_lists[cl_number].ljust(max_len_name, ' ')
+            replacer = re.compile('^' + cl_number + ':', re.MULTILINE)
+            annotation = re.sub(replacer, pad_number + ' ' + pad_name + ' |', annotation)
+
+        return annotation
+
+
+class P4AnnotationPopulate(sublime_plugin.TextCommand):
+    def run(self, edit):
+        self.view.insert(edit, 0, self.view.settings().get('p4_annotation'))
+        self.view.settings().set('p4_annotation', None)
+
+
 # DIFF VIEW ------------------------------------------------------------------------------------------------------------------------
 class P4GutterDiffCommand(sublime_plugin.WindowCommand):
     def run(self):
