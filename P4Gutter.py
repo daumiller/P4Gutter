@@ -172,7 +172,7 @@ class P4GutterDiffCommand(sublime_plugin.WindowCommand):
         environment['P4PORT'] = P4['port']
         environment['P4USER'] = P4['user']
         environment['P4CLIENT'] = workspace
-        out, err = shell_run([P4['binary'], 'diff', self.view.file_name()], environment)
+        out, err = shell_run([P4['binary'], 'diff', '-dl', self.view.file_name()], environment)
         if len(err) and not len(out):
             if P4['errorlog']:
                 print('P4Gutter Error: "{}".'.format(err[:-1]).replace('\r', '').replace('\n', ' > '))
@@ -180,7 +180,7 @@ class P4GutterDiffCommand(sublime_plugin.WindowCommand):
 
         additions, deletions_above, deletions_below, modifications = [], [], [], []
         diff_type, diff_begin, diff_end = None, 1, 1
-        lines = out.split('\n')
+        lines = out.replace('\r', '').split('\n')
         for line in lines:
             header = P4_DIFF_HEADER.match(line)
             if not header:
