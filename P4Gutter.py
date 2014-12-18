@@ -18,6 +18,10 @@ def path_is_root(path):
 
 
 def shell_run(args, env=None):
+    if not os.path.isfile(args[0]):
+        return '', 'executable "' + args[0] + '" not found.'
+    print(' '.join(args))
+    print(env)
     startupinfo = None
     if os.name == 'nt':
         startupinfo = subprocess.STARTUPINFO()
@@ -82,6 +86,8 @@ class P4AnnotationCommand(sublime_plugin.WindowCommand):
         anno_view.run_command('p4_annotation_populate')
 
     def annotate(self, workspace):
+        if not P4['enabled']:
+            return ''
         environment = os.environ
         environment['P4PORT'] = P4['port']
         environment['P4USER'] = P4['user']
@@ -168,6 +174,8 @@ class P4GutterDiffCommand(sublime_plugin.WindowCommand):
                               'Packages/P4Gutter/icons/modification.png', sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE)
 
     def run_diff(self, workspace):
+        if not P4['enabled']:
+            return [], [], [], []
         environment = os.environ
         environment['P4PORT'] = P4['port']
         environment['P4USER'] = P4['user']
@@ -213,6 +221,7 @@ def p4gutter_reload_settings():
     P4['user'] = P4['settings'].get('user')
     P4['port'] = P4['settings'].get('port')
     P4['errorlog'] = P4['settings'].get('errorlog')
+    P4['enabled'] = P4['settings'].get('enabled')
 
 
 # PLUGIN ---------------------------------------------------------------------------------------------------------------------------

@@ -16,6 +16,10 @@
     // But you can set it globally here, if desired.
     "workspace": "P4CLIENT",
 
+    // Enabled
+    // Disable the entire plugin here (until a better timeout fix is implemented).
+    "enabled": true,
+
     // Log errors to Sublime console.
     // This may be useful for initial setup, but is really just noise after.
     "errorlog": false
