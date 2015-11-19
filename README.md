@@ -3,6 +3,9 @@
 
 Sublime Text 3 plugin to display Perforce diffs in the gutter. See additions, deletions, and modifications.
 
+## Note
+*This project is not actively maintained. I no longer have access to a P4 server to test against.*
+
 
 ### Looks like
 ![screenshot](screenshot.png)
